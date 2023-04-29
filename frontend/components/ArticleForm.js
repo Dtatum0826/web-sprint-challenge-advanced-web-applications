@@ -5,14 +5,27 @@ const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
   const [values, setValues] = useState(initialFormValues)
-  // ✨ where are my props? Destructure them here
-
+  
+ const {postArticle, currentArticleId, currentArticle, updateArticle} =props
+ //DUSTIN When you get in today tracehow currentArticleId is set and passed and then just pass the entire article object as curretnArticle down the same path and pass it in here in the useEffect
   useEffect(() => {
     // ✨ implement
+    console.log(currentArticle,"USE EFFECT AF", currentArticleId)
+    if(!currentArticle ){
+      setValues(initialFormValues)
+      
+    }else{
+      
+      setValues({
+        title: currentArticle.title,
+        text: currentArticle.text,
+        topic: currentArticle.topic
+      },[currentArticle]); 
+    }
     // Every time the `currentArticle` prop changes, we should check it for truthiness:
     // if it's truthy, we should set its title, text and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
-  })
+  },[currentArticle])
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -21,14 +34,28 @@ export default function ArticleForm(props) {
 
   const onSubmit = evt => {
     evt.preventDefault()
-    // ✨ implement
-    // We must submit a new post or update an existing one,
-    // depending on the truthyness of the `currentArticle` prop.
+    const {title, text, topic} = values
+    
+   
+
+    if(currentArticle){
+      updateArticle(values, currentArticleId)
+    } else {
+      postArticle(values)
+    }
+   
+    setValues(initialFormValues)
+    
+    // currentArticle ? updateArticle(currentArticle,values) : postArticle(values)
   }
+  // We must submit a new post or update an existing one,
+    // depending on the truthyness of the `currentArticle` prop.
 
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values
+    const {title, text, topic} = values
+    return title < 1 || text < 1
   }
 
   return (
@@ -58,7 +85,7 @@ export default function ArticleForm(props) {
       </select>
       <div className="button-group">
         <button disabled={isDisabled()} id="submitArticle">Submit</button>
-        <button onClick={Function.prototype}>Cancel edit</button>
+        <button onClick={()=>setValues(initialFormValues)}>Cancel edit</button>
       </div>
     </form>
   )
